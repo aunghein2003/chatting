@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat App</title>
+    <script
+      src="https://cdn.socket.io/4.6.0/socket.io.min.js"
+      integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      #app {
+        max-width: 50%;
+        margin: 3vh auto;
+        padding: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        background-color: #91b7f1;
+        border: cornflowerblue;
+
+        #heading {
+          font-family: sans-serif;
+          color: #efeded;
+        }
+      }
+
+      #chat-window {
+        width: 100%;
+        height: 60vh;
+        padding: 10px;
+        box-sizing: border-box;
+        overflow-y: scroll;
+        background-color: #c8dcfb;
+      }
+
+      #output {
+        display: flex;
+        flex-direction: column;
+        max-width: 50%;
+        width: max-content;
+        height: auto;
+
+        .chat {
+          margin-bottom: 10px;
+        }
+
+        .chat-name,
+        .chat-message {
+          margin: 0;
+          padding: 3px 7px;
+        }
+
+        .chat-name {
+          font-size: 13px;
+        }
+
+        .chat-message {
+          border-radius: 30px;
+          max-width: max-content;
+          background-color: #95b4e6;
+        }
+      }
+
+      input {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        border: none;
+
+        &:focus {
+          outline: none;
+        }
+
+        &:last-of-type {
+          margin-top: 7px;
+        }
+      }
+
+      #send {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border: none;
+        box-sizing: border-box;
+        color: white;
+        cursor: pointer;
+        transition: all 5;
+        background-color: #477ccc;
+
+        &:hover {
+          background-color: #3464ad;
+        }
+
+        &:active {
+          background-color: #2c548f;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h1 id="heading">Chat App</h1>
+      <div id="chat-window">
+        <div id="output"></div>
+        <div id="feedback"></div>
+      </div>
+      <input type="text" placeholder="Name" id="name" />
+      <input type="text" placeholder="Message" id="message" />
+      <button id="send">Send</button>
+    </div>
+    <script>
+      const socket = io("http://localhost:5000");
+      const output = document.getElementById("output");
+      const message = document.getElementById("message");
+      const name = document.getElementById("name");
+      const send = document.getElementById("send");
+
+      send.addEventListener("click", () => {
+        if (!name.value || !message.value) {
+          return alert("Fill the required fields");
+        }
+        const data = {
+          name: name.value,
+          message: message.value,
+        };
+
+        socket.emit("chat", data);
+
+        name.value = "";
+        message.value = "";
+      });
+
+      socket.on("chat", (data) => {
+        output.innerHTML += `<div class="chat">
+            <p class="chat-name">${data.name}</p>
+            <p class="chat-message">${data.message}</p>
+          </div>`;
+      });
+    </script>
+  </body>
+</html>

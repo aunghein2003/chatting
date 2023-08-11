@@ -1,9 +1,24 @@
 const express = require("express");
+let socket = require("socket.io");
 
 const app = express();
 
+const server = app.listen(5000, () =>
+  console.log("Server listens on port 5000")
+);
+
 app.get("/", (req, res) => {
-  res.status(200).json({ hello: "world" });
+  res.sendFile(__dirname + "/public/index.html");
 });
 
-app.listen(5000, () => console.log("Server listens on port 5000"));
+const io = socket(server);
+
+io.on("connection", (socket) => {
+  console.log("user connected", socket.id);
+
+  socket.on("chat", (data) => {
+    console.log("Data", data);
+
+    io.sockets.emit("chat", data);
+  });
+});
