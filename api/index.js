@@ -14,11 +14,13 @@ app.get("/", (req, res) => {
 const io = socket(server);
 
 io.on("connection", (socket) => {
-  console.log("user connected", socket.id);
-
   socket.on("chat", (data) => {
     console.log("Data", data);
 
     io.sockets.emit("chat", data);
+  });
+
+  socket.on("typing", (name) => {
+    socket.broadcast.emit("typing", name);
   });
 });

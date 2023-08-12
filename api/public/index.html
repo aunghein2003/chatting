@@ -34,6 +34,19 @@
         box-sizing: border-box;
         overflow-y: scroll;
         background-color: #c8dcfb;
+
+        &::-webkit-scrollbar {
+          width: 3px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background-color: #95b4e6;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          border-radius: 20px;
+          background-color: #477ccc;
+        }
       }
 
       #output {
@@ -61,6 +74,25 @@
           border-radius: 30px;
           max-width: max-content;
           background-color: #95b4e6;
+        }
+      }
+
+      #feedback p {
+        padding: 3px 7px;
+        max-width: max-content;
+        border-radius: 10px;
+        font-style: italic;
+        color: gray;
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.8;
+        }
+        50% {
+          opacity: 0.5;
         }
       }
 
@@ -114,6 +146,7 @@
     <script>
       const socket = io("http://localhost:5000");
       const output = document.getElementById("output");
+      const feedback = document.getElementById("feedback");
       const message = document.getElementById("message");
       const name = document.getElementById("name");
       const send = document.getElementById("send");
@@ -133,11 +166,24 @@
         message.value = "";
       });
 
+      message.addEventListener("keypress", () => {
+        socket.emit("typing", name.value);
+      });
+
       socket.on("chat", (data) => {
+        feedback.innerHTML = "";
         output.innerHTML += `<div class="chat">
             <p class="chat-name">${data.name}</p>
             <p class="chat-message">${data.message}</p>
           </div>`;
+      });
+
+      socket.on("typing", (name) => {
+        feedback.innerHTML = `<p>${name} is typing...</p>`;
+
+        setTimeout(() => {
+          feedback.innerHTML = "";
+        }, 3000);
       });
     </script>
   </body>
